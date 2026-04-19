@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div style="text-align: center; margin-top: 50px;">
+    <h2>Search Customers</h2>
+    <form th:action="@{/search}" method="get">
+        <input type="text" name="keyword" placeholder="Enter Email or Mobile Number..." style="width: 300px; padding: 10px;">
+        <button type="submit" style="padding: 10px;">Search</button>
+    </form>
+
+    <table border="1" style="margin: 20px auto; width: 80%;">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${results}">
+            <td th:text="${c.name}"></td>
+            <td th:text="${c.mobile}"></td>
+            <td th:text="${c.email}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
