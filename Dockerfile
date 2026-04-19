@@ -1,15 +1,28 @@
-# Step 1: Use a lightweight JDK 17 image
-FROM eclipse-temurin:17-jdk-alpine
-
-# Step 2: Set the working directory inside the container
+# --- Stage 1: Build Stage ---
+# Use a Maven image with JDK 17 to build the project
+FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
 
-# Step 3: Copy the JAR file from your target folder to the container
-# Note: Make sure the name matches your JAR in the target folder
-COPY target/mobilenumber-0.0.1-SNAPSHOT.jar app.jar
+# Copy the pom.xml and source code
+COPY pom.xml .
+COPY src ./src
 
-# Step 4: Expose the port (Render uses 10000 by default, but Spring uses 8080)
+# Build the application and create the JAR file
+# -DskipTests speeds up the build by skipping unit tests
+RUN mvn clean package -DskipTests
+
+# --- Stage 2: Run Stage ---
+# Use a lightweight JRE image for the final production container
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+
+# Copy the JAR from the 'build' stage to this 'run' stage
+# Note: We use a wildcard *.jar to avoid name versioning issues
+COPY --from=build /app/target/*.jar app.jar
+
+# Render usually uses port 10000; Spring uses 8080 by default
 EXPOSE 8080
 
-# Step 5: Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the application
+# TieredStopAtLevel=1 speeds up startup time in container environments
+ENTRYPOINT ["java", "-XX:TieredStopAtLevel=1", "-jar", "app.jar"]
