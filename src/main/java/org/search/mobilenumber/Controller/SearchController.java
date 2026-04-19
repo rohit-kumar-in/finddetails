@@ -32,7 +32,7 @@ public class SearchController {
         return "search-page"; // This is your HTML file
     }
     */
-    @GetMapping("/search")
+    @GetMapping("/")
     public String handleSearch(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
         List<Customer> results;
 
